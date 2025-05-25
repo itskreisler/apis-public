@@ -1,0 +1,386 @@
+---
+// SwaggerUI.astro - Renders the Swagger UI interface
+---
+
+<div class="bg-gray-800 rounded-lg shadow-xl overflow-hidden mb-8">
+  <div id="swagger-ui"></div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.12.0/swagger-ui.css" />
+
+<script>
+  import SwaggerUIBundle from 'swagger-ui';
+  
+  const spec = {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Documentation',
+      version: '1.0.0',
+      description: 'API endpoints with Zod validation',
+    },
+    servers: [
+      {
+        url: window.location.origin,
+        description: 'Development server',
+      },
+    ],
+    paths: {
+      '/api/users': {
+        post: {
+          summary: 'Create a new user',
+          description: 'Creates a new user with validation using Zod',
+          operationId: 'createUser',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['name', 'email', 'age'],
+                  properties: {
+                    name: {
+                      type: 'string',
+                      example: 'John Doe',
+                      description: 'User\'s full name (2-50 characters)',
+                    },
+                    email: {
+                      type: 'string',
+                      format: 'email',
+                      example: 'john@example.com',
+                      description: 'Valid email address',
+                    },
+                    age: {
+                      type: 'integer',
+                      minimum: 18,
+                      maximum: 120,
+                      example: 30,
+                      description: 'User\'s age (18-120)',
+                    },
+                    bio: {
+                      type: 'string',
+                      example: 'Software developer with 5 years of experience',
+                      description: 'Optional bio (max 500 characters)',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '201': {
+              description: 'User created successfully',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      id: {
+                        type: 'string',
+                        format: 'uuid',
+                        example: '123e4567-e89b-12d3-a456-426614174000',
+                      },
+                      name: {
+                        type: 'string',
+                        example: 'John Doe',
+                      },
+                      email: {
+                        type: 'string',
+                        format: 'email',
+                        example: 'john@example.com',
+                      },
+                      age: {
+                        type: 'integer',
+                        example: 30,
+                      },
+                      createdAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        example: '2023-01-01T12:00:00Z',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            '400': {
+              description: 'Validation error',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      error: {
+                        type: 'string',
+                        example: 'Validation failed',
+                      },
+                      issues: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            path: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                              },
+                              example: ['email'],
+                            },
+                            message: {
+                              type: 'string',
+                              example: 'Invalid email',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        get: {
+          summary: 'Get all users',
+          description: 'Returns a list of all users',
+          operationId: 'getUsers',
+          parameters: [
+            {
+              name: 'limit',
+              in: 'query',
+              description: 'Maximum number of users to return',
+              schema: {
+                type: 'integer',
+                minimum: 1,
+                maximum: 100,
+                default: 10,
+              },
+            },
+            {
+              name: 'offset',
+              in: 'query',
+              description: 'Number of users to skip',
+              schema: {
+                type: 'integer',
+                minimum: 0,
+                default: 0,
+              },
+            },
+          ],
+          responses: {
+            '200': {
+              description: 'List of users',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      users: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: {
+                              type: 'string',
+                              format: 'uuid',
+                            },
+                            name: {
+                              type: 'string',
+                            },
+                            email: {
+                              type: 'string',
+                              format: 'email',
+                            },
+                            age: {
+                              type: 'integer',
+                            },
+                          },
+                        },
+                      },
+                      total: {
+                        type: 'integer',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      '/api/users/{id}': {
+        get: {
+          summary: 'Get user by ID',
+          description: 'Returns a single user by ID',
+          operationId: 'getUserById',
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              description: 'User ID',
+              schema: {
+                type: 'string',
+                format: 'uuid',
+              },
+            },
+          ],
+          responses: {
+            '200': {
+              description: 'User details',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      id: {
+                        type: 'string',
+                        format: 'uuid',
+                      },
+                      name: {
+                        type: 'string',
+                      },
+                      email: {
+                        type: 'string',
+                        format: 'email',
+                      },
+                      age: {
+                        type: 'integer',
+                      },
+                      bio: {
+                        type: 'string',
+                      },
+                      createdAt: {
+                        type: 'string',
+                        format: 'date-time',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            '404': {
+              description: 'User not found',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      error: {
+                        type: 'string',
+                        example: 'User not found',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    SwaggerUIBundle({
+      spec: spec,
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        // SwaggerUIBundle.SwaggerUIStandalonePreset
+      ],
+      layout: "BaseLayout",
+      theme: {
+        colors: {
+          primary: {
+            main: '#60A5FA'
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  :global(.swagger-ui) {
+    color-scheme: dark;
+  }
+  
+  :global(.swagger-ui .info .title),
+  :global(.swagger-ui .info .description),
+  :global(.swagger-ui .info li, .swagger-ui .info p, .swagger-ui .info table) {
+    color: #E5E7EB !important;
+  }
+  
+  :global(.swagger-ui .opblock-tag) {
+    color: #F3F4F6 !important;
+    border-bottom: 1px solid #374151;
+  }
+  
+  :global(.swagger-ui .opblock) {
+    background: #1F2937 !important;
+    border: 1px solid #374151 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  :global(.swagger-ui .opblock .opblock-summary-description),
+  :global(.swagger-ui .opblock .opblock-summary-operation-id),
+  :global(.swagger-ui .opblock .opblock-summary-path),
+  :global(.swagger-ui .opblock .opblock-summary-path__deprecated) {
+    color: #D1D5DB !important;
+  }
+  
+  :global(.swagger-ui .opblock.opblock-get) {
+    background: rgba(14, 165, 233, 0.1) !important;
+    border-color: #0EA5E9 !important;
+  }
+  
+  :global(.swagger-ui .opblock.opblock-post) {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-color: #3B82F6 !important;
+  }
+  
+  :global(.swagger-ui .opblock-description-wrapper p),
+  :global(.swagger-ui .opblock-external-docs-wrapper p),
+  :global(.swagger-ui .opblock-title_normal p) {
+    color: #D1D5DB !important;
+  }
+  
+  :global(.swagger-ui .tab li) {
+    color: #D1D5DB !important;
+  }
+  
+  :global(.swagger-ui input[type=email], 
+          .swagger-ui input[type=password],
+          .swagger-ui input[type=search],
+          .swagger-ui input[type=text]) {
+    background: #374151 !important;
+    border: 1px solid #4B5563 !important;
+    color: #E5E7EB !important;
+  }
+  
+  :global(.swagger-ui select) {
+    background: #374151 !important;
+    border: 1px solid #4B5563 !important;
+    color: #E5E7EB !important;
+  }
+  
+  :global(.swagger-ui textarea) {
+    background: #374151 !important;
+    border: 1px solid #4B5563 !important;
+    color: #E5E7EB !important;
+  }
+  
+  :global(.swagger-ui .btn) {
+    background: #3B82F6 !important;
+    border-color: #2563EB !important;
+    color: white !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  :global(.swagger-ui .scheme-container) {
+    background: #1F2937 !important;
+    box-shadow: none !important;
+  }
+</style>
