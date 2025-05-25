@@ -62,6 +62,9 @@ async function getInstagramUrl(content: any) {
         const res = await instagramGetUrl(url, { delay, retries })
         return new Response(JSON.stringify(res), { status: 200, headers })
     } catch (error) {
-        return new Response(JSON.stringify({ error }), { status: 500, headers })
+        if (error instanceof Error) {
+            return new Response(JSON.stringify({ error: error.message }), { status: 400, headers })
+        }
+        return new Response(JSON.stringify({ error: 'Unknown error' }), { status: 500, headers })
     }
 }
