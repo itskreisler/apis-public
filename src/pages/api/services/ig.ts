@@ -1,5 +1,4 @@
 import type { APIContext, APIRoute } from 'astro'
-import { instagramGetUrl } from 'instagram-url-direct'
 import { z } from 'astro:schema'
 
 const SchemaParamsIg = z.object({
@@ -59,6 +58,7 @@ async function getInstagramUrl(content: any) {
 
     try {
         const { url, retries, delay } = data
+        const { instagramGetUrl } = await import('instagram-url-direct')
         const res = await instagramGetUrl(url, { delay, retries })
         return new Response(JSON.stringify(res), { status: 200, headers })
     } catch (error) {
