@@ -30,7 +30,7 @@ export async function api({ request }: APIContext) {
                         return [error as Error, null]
                     }
                 })()
-                if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400 })
+                if (error) return new Response(JSON.stringify({ errorJson: error }, null, 2), { status: 400 })
                 return new Response(JSON.stringify({ post }), { status: 200 })
             }
             return new Response('Content-Type must be application/json', { status: 400 })
