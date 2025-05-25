@@ -53,7 +53,7 @@ export async function api({ request }: APIContext) {
 async function getInstagramUrl(content: any) {
     const { success, error, data } = parseParamsIg(content)
     if (!success) {
-        return new Response(JSON.stringify(error), { status: 400, headers })
+        return new Response(JSON.stringify({ error }), { status: 400, headers })
     }
 
     try {
